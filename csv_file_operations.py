@@ -10,6 +10,10 @@ from typing import Callable, Iterable
 DEFAULT_HEADERS = ["id", "name", "score"]
 RowFilter = Callable[[list[object]], bool]
 RecordFilter = Callable[[dict[str, str]], bool]
+from typing import Iterable
+
+
+DEFAULT_HEADERS = ["id", "name", "score"]
 
 
 def create_csv(file_path: str | Path, headers: Iterable[str] = DEFAULT_HEADERS) -> Path:
@@ -46,6 +50,17 @@ def read_csv(
     record_filter: RecordFilter | None = None,
 ) -> list[dict[str, str]]:
     """读取 CSV 并以字典列表形式返回，可选按条件过滤读取结果。"""
+def write_csv_rows(file_path: str | Path, rows: Iterable[Iterable[object]]) -> None:
+    """向已有 CSV 文件追加多行数据。"""
+    path = Path(file_path)
+
+    with path.open("a", newline="", encoding="utf-8") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerows(rows)
+
+
+def read_csv(file_path: str | Path) -> list[dict[str, str]]:
+    """读取 CSV 并以字典列表形式返回。"""
     path = Path(file_path)
 
     with path.open("r", newline="", encoding="utf-8") as csv_file:
@@ -56,6 +71,7 @@ def read_csv(
         return [record for record in records if record_filter(record)]
 
     return records
+        return list(reader)
 
 
 if __name__ == "__main__":
@@ -73,5 +89,12 @@ if __name__ == "__main__":
 
     print(f"CSV 文件已生成: {output_path}")
     print("筛选后读取结果:")
+    ]
+
+    write_csv_rows(output_path, sample_rows)
+    records = read_csv(output_path)
+
+    print(f"CSV 文件已生成: {output_path}")
+    print("读取结果:")
     for row in records:
         print(row)
